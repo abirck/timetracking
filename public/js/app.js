@@ -26,11 +26,29 @@ class TimersDashboard extends React.Component {
     this.createTimer(timer);
   };
 
+  handleEditFormSubmit = (attrs) => {
+    this.updateTimer(attrs);
+  };
+
   createTimer = (timer) => {
     const t = helpers.newTimer(timer);
     this.setState({
       timers: this.state.timers.concat(t)
     })
+  };
+
+  updateTimer = (attrs) => {
+    const updatedTimers = this.state.timers.map((timer) => {
+      if (timer.id == attrs.id) {
+        return Object.assign({}, timer, {
+          title: attrs.title,
+          project: attrs.project
+        });
+      } else {
+        return timer;
+      }
+    });
+    this.setState({timers: updatedTimers});
   };
 
   render() {
@@ -39,6 +57,7 @@ class TimersDashboard extends React.Component {
         <div className='column'>
           <EditableTimerList
             timers={this.state.timers}
+            onFormSubmit={this.handleEditFormSubmit}
           />
           <ToggleableTimerForm
             onFormSubmit={this.handleCreateFormSubmit}
@@ -100,6 +119,7 @@ class EditableTimerList extends React.Component {
         project={timer.project}
         elapsed={timer.elapsed}
         runningSince={timer.runningSince}
+        onFormSubmit={this.props.onFormSubmit}
       />
     ));
     return (
@@ -119,7 +139,7 @@ class EditableTimer extends React.Component {
     this.openForm();
   }
 
-  handleSubmit = () => {
+  handleSubmit = (timer) => {
     this.props.onFormSubmit(timer);
     this.closeForm();
   };
@@ -129,7 +149,7 @@ class EditableTimer extends React.Component {
   };
 
   openForm = () => {
-    this.setState({ editFormOpen: false });
+    this.setState({ editFormOpen: true });
   }
 
   closeForm = () => {
@@ -143,8 +163,8 @@ class EditableTimer extends React.Component {
           id={this.props.id}
           title={this.props.title}
           project={this.props.project}
-          onFormSubmit={this.onFormSubmit}
-          onFormClose={this.onFormClose}
+          onFormSubmit={this.handleSubmit}
+          onFormClose={this.handleFormClose}
         />
       );
     } else {
